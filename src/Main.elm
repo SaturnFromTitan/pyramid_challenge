@@ -32,6 +32,7 @@ type alias Model =
     , totalTime : Int
     , remainingRest : Int
     , maxReps : Int
+    , gameText : String
     }
 
 
@@ -47,20 +48,27 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        Tick _ ->
-            case model.gameStatus of
-                InProgress ->
-                    ( model |> tickSecond, Cmd.none )
+    let
+        newModel_ =
+            case msg of
+                Tick _ ->
+                    case model.gameStatus of
+                        InProgress ->
+                            model |> tickSecond
 
-                _ ->
-                    ( model, Cmd.none )
+                        _ ->
+                            model
 
-        StartChallenge ->
-            ( model |> startChallenge, Cmd.none )
+                StartChallenge ->
+                    model |> startChallenge
 
-        RoundDone ->
-            ( model |> advanceRound, Cmd.none )
+                RoundDone ->
+                    model |> advanceRound
+
+        newModel =
+            { newModel_ | gameText = getGameText newModel_ }
+    in
+    ( newModel, Cmd.none )
 
 
 tickSecond : Model -> Model
@@ -91,12 +99,33 @@ maxRound model =
     2 * model.maxReps - 1
 
 
-getRestInSeconds : Model -> Int
-getRestInSeconds model =
-    if model.finishedRounds < 4 then
+getGameText : Model -> String
+getGameText model =
+    if model.gameStatus == Init then
+        initGameText
+
+    else if model.gameStatus == Finished then
+        "You did it! Congrats!"
+
+    else if model.roundStatus == Pushing then
+        "Uh yeah, push it!"
+
+    else if model.roundStatus == Rest then
+        "Pace yourself and get some rest"
+
+    else
+        "42"
+
+
+getRestInSeconds : Int -> Int -> Int
+getRestInSeconds finishedRounds maxRounds =
+    if finishedRounds == maxRounds then
+        0
+
+    else if finishedRounds < 4 then
         30
 
-    else if model.finishedRounds < 7 then
+    else if finishedRounds < 7 then
         60
 
     else
@@ -163,12 +192,15 @@ advanceRound model =
             else
                 InProgress
 
+        maxRounds =
+            maxRound model
+
         newModel =
             { model
-                | finishedRounds = model.finishedRounds + 1
+                | finishedRounds = newFinishedRounds
                 , roundStatus = newRoundStatus
                 , gameStatus = newGameStatus
-                , remainingRest = getRestInSeconds model
+                , remainingRest = getRestInSeconds newFinishedRounds maxRounds
             }
     in
     if isValidNextRound model newModel then
@@ -208,6 +240,10 @@ view model =
 -- Init
 
 
+initGameText =
+    "Ready for some pushups?!"
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { gameStatus = Init
@@ -216,6 +252,7 @@ init _ =
       , maxReps = 10
       , totalTime = 0
       , remainingRest = 0
+      , gameText = initGameText
       }
     , Cmd.none
     )
