@@ -13,14 +13,21 @@ import Time
 -- Model
 
 
-type Status
+type GameStatus
     = Init
     | InProgress
     | Finished
 
 
+type RoundStatus
+    = None
+    | Pushing
+    | Rest
+
+
 type alias Model =
-    { status : Status
+    { gameStatus : GameStatus
+    , roundStatus : RoundStatus
     , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
@@ -42,7 +49,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Tick _ ->
-            case model.status of
+            case model.gameStatus of
                 InProgress ->
                     ( model |> tickSecond, Cmd.none )
 
@@ -50,7 +57,7 @@ update msg model =
                     ( model, Cmd.none )
 
         StartChallenge ->
-            ( { model | status = InProgress }, Cmd.none )
+            ( model |> startChallenge, Cmd.none )
 
         RoundDone ->
             ( model |> advanceRound, Cmd.none )
@@ -59,6 +66,14 @@ update msg model =
 tickSecond : Model -> Model
 tickSecond model =
     { model | totalTime = model.totalTime + 1 }
+
+
+startChallenge : Model -> Model
+startChallenge model =
+    { model
+        | gameStatus = InProgress
+        , roundStatus = Pushing
+    }
 
 
 advanceRound : Model -> Model
@@ -87,7 +102,8 @@ view model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { status = Init
+    ( { gameStatus = Init
+      , roundStatus = None
       , finishedRounds = 0
       , maxReps = 10
       , totalTime = 0
