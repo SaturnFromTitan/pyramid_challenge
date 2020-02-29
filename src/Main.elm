@@ -42,7 +42,7 @@ update msg model =
         Tick _ ->
             case model.status of
                 InProgress ->
-                    ( { model | totalTime = model.totalTime + 1 }, Cmd.none )
+                    ( model |> tickSecond, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -52,6 +52,11 @@ update msg model =
 
         RoundDone ->
             ( model, Cmd.none )
+
+
+tickSecond : Model -> Model
+tickSecond model =
+    { model | totalTime = model.totalTime + 1 }
 
 
 
