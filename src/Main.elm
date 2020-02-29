@@ -28,7 +28,7 @@ type RoundStatus
 type alias Model =
     { gameStatus : GameStatus
     , roundStatus : RoundStatus
-    , finishedRounds : Int
+    , round : Int
     , totalTime : Int
     , remainingRest : Int
     , maxReps : Int
@@ -65,20 +65,69 @@ update msg model =
 
 tickSecond : Model -> Model
 tickSecond model =
-    { model | totalTime = model.totalTime + 1 }
+    { model
+        | totalTime = model.totalTime + 1
+    }
+
+
+maxRound : Model -> Int
+maxRound model =
+    2 * model.maxReps - 1
 
 
 startChallenge : Model -> Model
 startChallenge model =
-    { model
-        | gameStatus = InProgress
-        , roundStatus = Pushing
-    }
+    let
+        newModel =
+            { model
+                | gameStatus = InProgress
+                , roundStatus = Pushing
+            }
+    in
+    if isValidStartChallenge model newModel then
+        newModel
+
+    else
+        model
+
+
+isValidStartChallenge : Model -> Model -> Bool
+isValidStartChallenge model newModel =
+    let
+        initToInProgress =
+            (model.gameStatus == Init) && (newModel.gameStatus == InProgress)
+
+        inProgressToFinished =
+            (model.gameStatus == InProgress) && (newModel.gameStatus == Finished)
+    in
+    initToInProgress || inProgressToFinished
 
 
 advanceRound : Model -> Model
 advanceRound model =
-    { model | finishedRounds = model.finishedRounds + 1 }
+    let
+        newModel =
+            { model
+                | round = model.round + 1
+            }
+    in
+    if isValidNextRound model newModel then
+        newModel
+
+    else
+        model
+
+
+isValidNextRound : Model -> Model -> Bool
+isValidNextRound model newModel =
+    let
+        gameIsStarted =
+            model.gameStatus == InProgress
+
+        isValidRoundTransition =
+            newModel.round <= maxRound newModel
+    in
+    gameIsStarted && isValidRoundTransition
 
 
 
@@ -96,7 +145,6 @@ view model =
 
 
 
---
 -- Init
 
 
@@ -104,7 +152,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { gameStatus = Init
       , roundStatus = None
-      , finishedRounds = 0
+      , round = 0
       , maxReps = 10
       , totalTime = 0
       , remainingRest = 0
