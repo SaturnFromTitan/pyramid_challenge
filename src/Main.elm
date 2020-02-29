@@ -28,7 +28,7 @@ type RoundStatus
 type alias Model =
     { gameStatus : GameStatus
     , roundStatus : RoundStatus
-    , round : Int
+    , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
     , maxReps : Int
@@ -65,14 +65,51 @@ update msg model =
 
 tickSecond : Model -> Model
 tickSecond model =
+    let
+        newRemainingRest =
+            max 0 (model.remainingRest - 1)
+
+        restIsOver =
+            newRemainingRest == 0
+
+        newRoundStatus =
+            if restIsOver then
+                Pushing
+
+            else
+                Rest
+    in
     { model
         | totalTime = model.totalTime + 1
+        , remainingRest = newRemainingRest
+        , roundStatus = newRoundStatus
     }
 
 
 maxRound : Model -> Int
 maxRound model =
     2 * model.maxReps - 1
+
+
+getRestInSeconds : Model -> Int
+getRestInSeconds model =
+    if model.finishedRounds < 4 then
+        30
+
+    else if model.finishedRounds < 7 then
+        60
+
+    else
+        120
+
+
+getNextReps : Model -> Int
+getNextReps model =
+    if model.finishedRounds < model.maxReps then
+        model.finishedRounds + 1
+
+    else
+        2 * model.maxReps - (model.finishedRounds + 1)
 
 
 startChallenge : Model -> Model
@@ -106,9 +143,32 @@ isValidStartChallenge model newModel =
 advanceRound : Model -> Model
 advanceRound model =
     let
+        newFinishedRounds =
+            model.finishedRounds + 1
+
+        wasLastRound =
+            newFinishedRounds == maxRound model
+
+        newRoundStatus =
+            if wasLastRound then
+                None
+
+            else
+                Rest
+
+        newGameStatus =
+            if wasLastRound then
+                Finished
+
+            else
+                InProgress
+
         newModel =
             { model
-                | round = model.round + 1
+                | finishedRounds = model.finishedRounds + 1
+                , roundStatus = newRoundStatus
+                , gameStatus = newGameStatus
+                , remainingRest = getRestInSeconds model
             }
     in
     if isValidNextRound model newModel then
@@ -125,7 +185,7 @@ isValidNextRound model newModel =
             model.gameStatus == InProgress
 
         isValidRoundTransition =
-            newModel.round <= maxRound newModel
+            newModel.finishedRounds <= maxRound newModel
     in
     gameIsStarted && isValidRoundTransition
 
@@ -152,7 +212,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { gameStatus = Init
       , roundStatus = None
-      , round = 0
+      , finishedRounds = 0
       , maxReps = 10
       , totalTime = 0
       , remainingRest = 0
