@@ -126,20 +126,23 @@ tickSecond model =
 
 getGameText : Model -> String
 getGameText model =
-    if model.gameStatus == Init then
-        initGameText
+    case model.gameStatus of
+        Init ->
+            initGameText
 
-    else if model.gameStatus == Finished then
-        "You did it! Congrats!"
+        Finished ->
+            "You did it! Congrats!"
 
-    else if model.roundStatus == Pushing then
-        "Push, push, push!"
+        InProgress ->
+            case model.roundStatus of
+                Pushing ->
+                    "Push, push, push!"
 
-    else if model.roundStatus == Rest then
-        "Pace yourself and get some rest..."
+                Rest ->
+                    "Pace yourself and get some rest..."
 
-    else
-        "42"
+                None ->
+                    "42"
 
 
 getRest : Int -> Int
