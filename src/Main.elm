@@ -6,6 +6,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Text as Text
+import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Debug
 import Html exposing (Html)
@@ -132,7 +133,7 @@ getGameText model =
         "You did it! Congrats!"
 
     else if model.roundStatus == Pushing then
-        "Uh yeah, push it!"
+        "Push, push, push!"
 
     else if model.roundStatus == Rest then
         "Pace yourself and get some rest..."
@@ -275,9 +276,16 @@ view model =
         ]
 
 
-makeRow : Html msg -> Html msg -> Html msg
-makeRow content1 content2 =
-    Grid.row [ Row.centerXs ]
+makeRow : List (Grid.Column msg) -> Html msg
+makeRow elements =
+    Grid.row
+        [ Row.centerXs, Row.attrs [ Spacing.p1 ] ]
+        elements
+
+
+makeRowWithTwoColumns : Html msg -> Html msg -> Html msg
+makeRowWithTwoColumns content1 content2 =
+    makeRow
         [ Grid.col
             [ Col.xs2 ]
             [ content1 ]
@@ -287,24 +295,61 @@ makeRow content1 content2 =
         ]
 
 
+as2DigitString : Int -> String
+as2DigitString num =
+    let
+        numAsString =
+            String.fromInt num
+    in
+    if String.length numAsString == 1 then
+        "0" ++ numAsString
+
+    else
+        numAsString
+
+
+secondsToTime : Int -> String
+secondsToTime totalSeconds =
+    let
+        hours =
+            totalSeconds // 3600
+
+        remainder =
+            remainderBy 3600 totalSeconds
+
+        minutes =
+            remainder // 60
+
+        seconds =
+            remainderBy 60 remainder
+    in
+    String.concat
+        [ as2DigitString hours
+        , ":"
+        , as2DigitString minutes
+        , ":"
+        , as2DigitString seconds
+        ]
+
+
 totalTimeRow : Model -> Html msg
 totalTimeRow model =
-    makeRow (Html.text "Total time:") (Html.text (String.fromInt model.totalTime))
+    makeRowWithTwoColumns (Html.text "Total time:") (Html.text (secondsToTime model.totalTime))
 
 
 totalRepsRow : Model -> Html msg
 totalRepsRow model =
-    makeRow (Html.text "Total reps:") (Html.text (getRepsStatusText model))
+    makeRowWithTwoColumns (Html.text "Total reps:") (Html.text (getRepsStatusText model))
 
 
 restRow : Model -> Html msg
 restRow model =
-    makeRow (Html.text "Remaining rest:") (Html.text (String.fromInt model.remainingRest))
+    makeRowWithTwoColumns (Html.text "Remaining rest:") (Html.text (secondsToTime model.remainingRest))
 
 
 nextRepsRow : Model -> Html msg
 nextRepsRow model =
-    makeRow (Html.text "Next reps:") (Html.text (String.fromInt (getNextReps model.finishedRounds)))
+    makeRowWithTwoColumns (Html.text "Next reps:") (Html.text (String.fromInt (getNextReps model.finishedRounds)))
 
 
 getRepsStatusText : Model -> String
@@ -330,7 +375,7 @@ buttonsRow model =
                 Finished ->
                     []
     in
-    Grid.row [ Row.centerXs ]
+    makeRow
         [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
             buttons
         ]
@@ -338,7 +383,7 @@ buttonsRow model =
 
 gameTextRow : Model -> Html msg
 gameTextRow model =
-    Grid.row [ Row.centerXs ]
+    makeRow
         [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
             [ Html.text model.gameText ]
         ]
