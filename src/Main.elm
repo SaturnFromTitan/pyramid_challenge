@@ -7,7 +7,6 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Text as Text
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta)
 import Debug
 import Html exposing (Html)
 import Html.Events exposing (onClick)
@@ -263,14 +262,16 @@ isValidNextRound model newModel =
 
 view : Model -> Html Msg
 view model =
-    Grid.container []
+    Html.div []
         [ CDN.stylesheet
-        , totalTimeRow model
-        , totalRepsRow model
-        , restRow model
-        , nextRepsRow model
-        , buttonsRow
-        , gameTextRow model
+        , Grid.container []
+            [ gameTextRow model
+            , totalTimeRow model
+            , totalRepsRow model
+            , restRow model
+            , nextRepsRow model
+            , buttonsRow
+            ]
         ]
 
 
@@ -319,7 +320,7 @@ buttonsRow : Html Msg
 buttonsRow =
     makeRow
         (Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ])
-        (Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ])
+        (Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go!" ])
 
 
 gameTextRow : Model -> Html msg
@@ -331,8 +332,6 @@ gameTextRow model =
 
 
 
--- , Html.br [] []
--- , Html.text (Debug.toString model)
 -- Init
 
 
