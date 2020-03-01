@@ -10,6 +10,16 @@ import Time
 
 
 
+-- Helpers
+
+
+sumOf1To : Int -> Int
+sumOf1To n =
+    -- Gaussian sum formula
+    n * (n + 1) // 2
+
+
+
 -- Model
 
 
@@ -25,7 +35,7 @@ maxRounds =
 
 maxTotalReps : Int
 maxTotalReps =
-    (maxReps * (maxReps + 1)) - maxReps
+    2 * sumOf1To maxReps - maxReps
 
 
 type GameStatus
@@ -147,18 +157,11 @@ getRest finishedRounds =
 
 getTotalReps : Int -> Int
 getTotalReps finishedRounds =
-    let
-        r =
-            finishedRounds
-
-        m =
-            maxReps
-    in
-    if r <= m then
-        r * (r + 1) // 2
+    if finishedRounds <= maxReps then
+        sumOf1To finishedRounds
 
     else
-        100 - ((2 * m - 1) - r) * ((2 * m) - r) // 2
+        maxTotalReps - sumOf1To (maxRounds - finishedRounds)
 
 
 getNextReps : Int -> Int
@@ -167,7 +170,7 @@ getNextReps finishedRounds =
         finishedRounds + 1
 
     else
-        2 * maxReps - (finishedRounds + 1)
+        maxRounds - finishedRounds
 
 
 startChallenge : Model -> Model
