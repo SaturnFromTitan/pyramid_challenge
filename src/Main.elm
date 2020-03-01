@@ -13,6 +13,21 @@ import Time
 -- Model
 
 
+maxReps : Int
+maxReps =
+    10
+
+
+maxRounds : Int
+maxRounds =
+    2 * maxReps - 1
+
+
+maxTotalReps : Int
+maxTotalReps =
+    (maxReps * (maxReps + 1)) - maxReps
+
+
 type GameStatus
     = Init
     | InProgress
@@ -31,7 +46,6 @@ type alias Model =
     , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
-    , maxReps : Int
     , gameText : String
     }
 
@@ -94,11 +108,6 @@ tickSecond model =
     }
 
 
-maxRound : Model -> Int
-maxRound model =
-    2 * model.maxReps - 1
-
-
 getGameText : Model -> String
 getGameText model =
     if model.gameStatus == Init then
@@ -117,28 +126,27 @@ getGameText model =
         "42"
 
 
-getRestInSeconds : Int -> Int -> Int
-getRestInSeconds finishedRounds maxRounds =
-    if finishedRounds == maxRounds then
+getRest : Int -> Int
+getRest finishedRounds =
+    let
+        nextReps =
+            getNextReps finishedRounds
+    in
+    if nextReps == 0 then
         0
 
-    else if finishedRounds < 4 then
+    else if nextReps < 4 then
         30
 
-    else if finishedRounds < 7 then
+    else if nextReps < 7 then
         60
 
     else
         120
 
 
-getMaxTotalReps : Int -> Int
-getMaxTotalReps maxReps =
-    (maxReps * (maxReps + 1)) - maxReps
-
-
-getTotalReps : Int -> Int -> Int
-getTotalReps finishedRounds maxReps =
+getTotalReps : Int -> Int
+getTotalReps finishedRounds =
     let
         r =
             finishedRounds
@@ -153,8 +161,8 @@ getTotalReps finishedRounds maxReps =
         100 - ((2 * m - 1) - r) * ((2 * m) - r) // 2
 
 
-getNextReps : Int -> Int -> Int
-getNextReps finishedRounds maxReps =
+getNextReps : Int -> Int
+getNextReps finishedRounds =
     if finishedRounds < maxReps then
         finishedRounds + 1
 
@@ -171,15 +179,15 @@ startChallenge model =
                 , roundStatus = Pushing
             }
     in
-    if isValidStartChallenge model newModel then
+    if isValidStart model newModel then
         newModel
 
     else
         model
 
 
-isValidStartChallenge : Model -> Model -> Bool
-isValidStartChallenge model newModel =
+isValidStart : Model -> Model -> Bool
+isValidStart model newModel =
     let
         initToInProgress =
             (model.gameStatus == Init) && (newModel.gameStatus == InProgress)
@@ -197,7 +205,7 @@ advanceRound model =
             model.finishedRounds + 1
 
         wasLastRound =
-            newFinishedRounds == maxRound model
+            newFinishedRounds == maxRounds
 
         newRoundStatus =
             if wasLastRound then
@@ -213,15 +221,12 @@ advanceRound model =
             else
                 InProgress
 
-        maxRounds =
-            maxRound model
-
         newModel =
             { model
                 | finishedRounds = newFinishedRounds
                 , roundStatus = newRoundStatus
                 , gameStatus = newGameStatus
-                , remainingRest = getRestInSeconds newFinishedRounds maxRounds
+                , remainingRest = getRest newFinishedRounds
             }
     in
     if isValidNextRound model newModel then
@@ -238,7 +243,7 @@ isValidNextRound model newModel =
             model.gameStatus == InProgress
 
         isValidRoundTransition =
-            newModel.finishedRounds <= maxRound newModel
+            newModel.finishedRounds <= maxRounds
     in
     gameIsStarted && isValidRoundTransition
 
@@ -254,12 +259,12 @@ view model =
         , Html.text (String.fromInt model.totalTime)
         , Html.br [] []
         , Html.text "Total reps: "
-        , Html.text (String.fromInt (getTotalReps model.finishedRounds model.maxReps))
+        , Html.text (String.fromInt (getTotalReps model.finishedRounds))
         , Html.text "/"
-        , Html.text (String.fromInt (getMaxTotalReps model.maxReps))
+        , Html.text (String.fromInt maxTotalReps)
         , Html.br [] []
         , Html.text "Next reps: "
-        , Html.text (String.fromInt (getNextReps model.finishedRounds model.maxReps))
+        , Html.text (String.fromInt (getNextReps model.finishedRounds))
         , Html.br [] []
         , Html.text "Remaining rest: "
         , Html.text (String.fromInt model.remainingRest)
@@ -287,7 +292,6 @@ init _ =
     ( { gameStatus = Init
       , roundStatus = None
       , finishedRounds = 0
-      , maxReps = 10
       , totalTime = 0
       , remainingRest = 0
       , gameText = initGameText
