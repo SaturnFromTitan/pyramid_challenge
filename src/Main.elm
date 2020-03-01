@@ -132,13 +132,34 @@ getRestInSeconds finishedRounds maxRounds =
         120
 
 
-getNextReps : Model -> Int
-getNextReps model =
-    if model.finishedRounds < model.maxReps then
-        model.finishedRounds + 1
+getMaxTotalReps : Int -> Int
+getMaxTotalReps maxReps =
+    (maxReps * (maxReps + 1)) - maxReps
+
+
+getTotalReps : Int -> Int -> Int
+getTotalReps finishedRounds maxReps =
+    let
+        r =
+            finishedRounds
+
+        m =
+            maxReps
+    in
+    if r <= m then
+        r * (r + 1) // 2
 
     else
-        2 * model.maxReps - (model.finishedRounds + 1)
+        100 - ((2 * m - 1) - r) * ((2 * m) - r) // 2
+
+
+getNextReps : Int -> Int -> Int
+getNextReps finishedRounds maxReps =
+    if finishedRounds < maxReps then
+        finishedRounds + 1
+
+    else
+        2 * maxReps - (finishedRounds + 1)
 
 
 startChallenge : Model -> Model
@@ -229,10 +250,27 @@ isValidNextRound model newModel =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ Html.text (Debug.toString model)
+        [ Html.text "Total time: "
+        , Html.text (String.fromInt model.totalTime)
+        , Html.br [] []
+        , Html.text "Total reps: "
+        , Html.text (String.fromInt (getTotalReps model.finishedRounds model.maxReps))
+        , Html.text "/"
+        , Html.text (String.fromInt (getMaxTotalReps model.maxReps))
+        , Html.br [] []
+        , Html.text "Next reps: "
+        , Html.text (String.fromInt (getNextReps model.finishedRounds model.maxReps))
+        , Html.br [] []
+        , Html.text "Remaining rest: "
+        , Html.text (String.fromInt model.remainingRest)
         , Html.br [] []
         , Html.button [ onClick RoundDone ] [ Html.text "Round Done!" ]
         , Html.button [ onClick StartChallenge ] [ Html.text "Start Challenge!" ]
+        , Html.br [] []
+        , Html.text model.gameText
+
+        -- , Html.br [] []
+        -- , Html.text (Debug.toString model)
         ]
 
 
