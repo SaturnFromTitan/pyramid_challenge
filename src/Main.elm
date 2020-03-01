@@ -135,7 +135,7 @@ getGameText model =
         "Uh yeah, push it!"
 
     else if model.roundStatus == Rest then
-        "Pace yourself and get some rest"
+        "Pace yourself and get some rest..."
 
     else
         "42"
@@ -265,12 +265,12 @@ view model =
     Html.div []
         [ CDN.stylesheet
         , Grid.container []
-            [ gameTextRow model
-            , totalTimeRow model
+            [ totalTimeRow model
             , totalRepsRow model
             , restRow model
             , nextRepsRow model
-            , buttonsRow
+            , gameTextRow model
+            , buttonsRow model
             ]
         ]
 
@@ -316,11 +316,24 @@ getRepsStatusText model =
         ]
 
 
-buttonsRow : Html Msg
-buttonsRow =
-    makeRow
-        (Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ])
-        (Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go!" ])
+buttonsRow : Model -> Html Msg
+buttonsRow model =
+    let
+        buttons =
+            case model.gameStatus of
+                Init ->
+                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ] ]
+
+                InProgress ->
+                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ] ]
+
+                Finished ->
+                    []
+    in
+    Grid.row [ Row.centerXs ]
+        [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            buttons
+        ]
 
 
 gameTextRow : Model -> Html msg
