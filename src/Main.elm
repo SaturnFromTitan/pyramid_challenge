@@ -5,6 +5,7 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
+import Bootstrap.Text as Text
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
 import Debug
@@ -264,51 +265,68 @@ view : Model -> Html Msg
 view model =
     Grid.container []
         [ CDN.stylesheet
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Html.text "Total time:" ]
-            , Grid.col [ Col.xlAuto ]
-                [ Html.text (String.fromInt model.totalTime) ]
-            ]
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Html.text "Total reps:" ]
-            , Grid.col [ Col.xlAuto ]
-                [ Html.text (getRepsStatusText model) ]
-            ]
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Html.text "Remaining Rest:" ]
-            , Grid.col [ Col.xlAuto ]
-                [ Html.text (String.fromInt model.remainingRest) ]
-            ]
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Html.text "Next reps:" ]
-            , Grid.col [ Col.xlAuto ]
-                [ Html.text (String.fromInt (getNextReps model.finishedRounds)) ]
-            ]
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ]
-                ]
-            , Grid.col [ Col.xlAuto ]
-                [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ]
-                ]
-            ]
-        , Grid.row [ Row.centerXl ]
-            [ Grid.col [ Col.xlAuto ]
-                [ Html.text model.gameText ]
-            ]
+        , totalTimeRow model
+        , totalRepsRow model
+        , restRow model
+        , nextRepsRow model
+        , buttonsRow
+        , gameTextRow model
         ]
+
+
+makeRow : Html msg -> Html msg -> Html msg
+makeRow content1 content2 =
+    Grid.row [ Row.centerXs ]
+        [ Grid.col
+            [ Col.xs2 ]
+            [ content1 ]
+        , Grid.col
+            [ Col.xs2, Col.textAlign Text.alignXsLeft ]
+            [ content2 ]
+        ]
+
+
+totalTimeRow : Model -> Html msg
+totalTimeRow model =
+    makeRow (Html.text "Total time:") (Html.text (String.fromInt model.totalTime))
+
+
+totalRepsRow : Model -> Html msg
+totalRepsRow model =
+    makeRow (Html.text "Total reps:") (Html.text (getRepsStatusText model))
+
+
+restRow : Model -> Html msg
+restRow model =
+    makeRow (Html.text "Remaining rest:") (Html.text (String.fromInt model.remainingRest))
+
+
+nextRepsRow : Model -> Html msg
+nextRepsRow model =
+    makeRow (Html.text "Next reps:") (Html.text (String.fromInt (getNextReps model.finishedRounds)))
 
 
 getRepsStatusText : Model -> String
 getRepsStatusText model =
     String.concat
         [ String.fromInt (getTotalReps model.finishedRounds)
-        , "/"
+        , " of "
         , String.fromInt maxTotalReps
+        ]
+
+
+buttonsRow : Html Msg
+buttonsRow =
+    makeRow
+        (Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ])
+        (Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ])
+
+
+gameTextRow : Model -> Html msg
+gameTextRow model =
+    Grid.row [ Row.centerXs ]
+        [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            [ Html.text model.gameText ]
         ]
 
 
