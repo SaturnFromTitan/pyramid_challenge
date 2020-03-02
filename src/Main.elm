@@ -5,6 +5,7 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
+import Bootstrap.Progress as Progress
 import Bootstrap.Text as Text
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
@@ -342,7 +343,30 @@ totalTimeRow model =
 
 totalRepsRow : Model -> Html msg
 totalRepsRow model =
-    makeRowWithTwoColumns (Html.text "Total reps:") (Html.text (getRepsStatusText model))
+    let
+        finishedReps =
+            toFloat (getTotalReps model.finishedRounds)
+
+        label =
+            getRepsStatusText model
+
+        progress =
+            Progress.progress
+                [ Progress.success
+                , Progress.value finishedReps
+                , Progress.customLabel [ Html.div [] [ Html.text (String.fromInt (getTotalReps model.finishedRounds)) ] ]
+                ]
+    in
+    makeRowWithTwoColumns (Html.text "Total reps:") progress
+
+
+getRepsStatusText : Model -> String
+getRepsStatusText model =
+    String.concat
+        [ String.fromInt (getTotalReps model.finishedRounds)
+        , " of "
+        , String.fromInt maxTotalReps
+        ]
 
 
 restRow : Model -> Html msg
@@ -353,15 +377,6 @@ restRow model =
 nextRepsRow : Model -> Html msg
 nextRepsRow model =
     makeRowWithTwoColumns (Html.text "Next reps:") (Html.text (String.fromInt (getNextReps model.finishedRounds)))
-
-
-getRepsStatusText : Model -> String
-getRepsStatusText model =
-    String.concat
-        [ String.fromInt (getTotalReps model.finishedRounds)
-        , " of "
-        , String.fromInt maxTotalReps
-        ]
 
 
 buttonsRow : Model -> Html Msg
