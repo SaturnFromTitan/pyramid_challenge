@@ -138,7 +138,7 @@ getRest : Int -> Int
 getRest finishedRounds =
     let
         finishedReps =
-            getNextReps (finishedRounds - 1)
+            getReps finishedRounds
 
         multiplicator =
             if finishedReps <= 3 then
@@ -162,13 +162,13 @@ getTotalReps finishedRounds =
         maxTotalReps - sumOf1To (maxRounds - finishedRounds)
 
 
-getNextReps : Int -> Int
-getNextReps finishedRounds =
-    if finishedRounds < maxReps then
-        finishedRounds + 1
+getReps : Int -> Int
+getReps finishedRounds =
+    if finishedRounds <= maxReps then
+        finishedRounds
 
     else
-        maxRounds - finishedRounds
+        2 * maxReps - finishedRounds
 
 
 startChallenge : Model -> Model
@@ -323,7 +323,7 @@ nextRepsRow model =
         message =
             String.concat
                 [ "Next reps: "
-                , String.fromInt (getNextReps model.finishedRounds)
+                , String.fromInt (getReps (model.finishedRounds + 1))
                 ]
     in
     makeRow [ Html.text message ]
