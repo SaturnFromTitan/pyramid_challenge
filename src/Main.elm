@@ -7,6 +7,7 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Progress as Progress
 import Bootstrap.Text as Text
+import Bootstrap.Utilities.Flex as Flex
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Debug
@@ -263,16 +264,37 @@ isValidNextRound model newModel =
 
 view : Model -> Html Msg
 view model =
+    let
+        elements =
+            case ( model.gameStatus, model.roundStatus ) of
+                ( Init, None ) ->
+                    [ gameTextRow model
+                    , buttonsRow model
+                    ]
+
+                ( InProgress, Pushing ) ->
+                    [ gameTextRow model
+                    , totalRepsRow model
+                    , nextRepsRow model
+                    , buttonsRow model
+                    ]
+
+                ( InProgress, Rest ) ->
+                    [ gameTextRow model
+                    , restRow model
+                    ]
+
+                ( Finished, None ) ->
+                    [ gameTextRow model
+                    , totalTimeRow model
+                    ]
+
+                _ ->
+                    [ gameTextRow model ]
+    in
     Html.div []
         [ CDN.stylesheet
-        , Grid.container []
-            [ totalTimeRow model
-            , totalRepsRow model
-            , restRow model
-            , nextRepsRow model
-            , gameTextRow model
-            , buttonsRow model
-            ]
+        , Grid.container [] elements
         ]
 
 
@@ -350,7 +372,6 @@ totalRepsRow model =
             Progress.progress
                 [ Progress.success
                 , Progress.value finishedReps
-                , Progress.customLabel [ Html.div [] [ Html.text (String.fromInt (getTotalReps model.finishedRounds)) ] ]
                 ]
     in
     makeRowWithTwoColumns (Html.text "Total reps:") progress
