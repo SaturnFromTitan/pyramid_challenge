@@ -7,7 +7,6 @@ import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Progress as Progress
 import Bootstrap.Text as Text
-import Bootstrap.Utilities.Flex as Flex
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Debug
@@ -46,21 +45,15 @@ maxTotalReps =
     2 * sumOf1To maxReps - maxReps
 
 
-type GameStatus
+type Status
     = Init
-    | InProgress
+    | Pushing
+    | Resting
     | Finished
 
 
-type RoundStatus
-    = None
-    | Pushing
-    | Rest
-
-
 type alias Model =
-    { gameStatus : GameStatus
-    , roundStatus : RoundStatus
+    { status : Status
     , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
@@ -83,8 +76,11 @@ update msg model =
         newModel =
             case msg of
                 Tick _ ->
-                    case model.gameStatus of
-                        InProgress ->
+                    case model.status of
+                        Pushing ->
+                            model |> tickSecond
+
+                        Resting ->
                             model |> tickSecond
 
                         _ ->
@@ -108,39 +104,34 @@ tickSecond model =
         restIsOver =
             newRemainingRest == 0
 
-        newRoundStatus =
+        newStatus =
             if restIsOver then
                 Pushing
 
             else
-                Rest
+                Resting
     in
     { model
         | totalTime = model.totalTime + 1
         , remainingRest = newRemainingRest
-        , roundStatus = newRoundStatus
+        , status = newStatus
     }
 
 
 getGameText : Model -> String
 getGameText model =
-    case model.gameStatus of
+    case model.status of
         Init ->
             "Ready for some Pushups?!"
 
+        Pushing ->
+            "Push, push, push!"
+
+        Resting ->
+            "Pace yourself and get some rest..."
+
         Finished ->
             "You did it! Congrats!"
-
-        InProgress ->
-            case model.roundStatus of
-                Pushing ->
-                    "Push, push, push!"
-
-                Rest ->
-                    "Pace yourself and get some rest..."
-
-                None ->
-                    "42"
 
 
 getRest : Int -> Int
@@ -182,30 +173,7 @@ getNextReps finishedRounds =
 
 startChallenge : Model -> Model
 startChallenge model =
-    let
-        newModel =
-            { model
-                | gameStatus = InProgress
-                , roundStatus = Pushing
-            }
-    in
-    if isValidStart model newModel then
-        newModel
-
-    else
-        model
-
-
-isValidStart : Model -> Model -> Bool
-isValidStart model newModel =
-    let
-        initToInProgress =
-            (model.gameStatus == Init) && (newModel.gameStatus == InProgress)
-
-        inProgressToFinished =
-            (model.gameStatus == InProgress) && (newModel.gameStatus == Finished)
-    in
-    initToInProgress || inProgressToFinished
+    { model | status = Pushing }
 
 
 advanceRound : Model -> Model
@@ -217,45 +185,18 @@ advanceRound model =
         wasLastRound =
             newFinishedRounds == maxRounds
 
-        newRoundStatus =
-            if wasLastRound then
-                None
-
-            else
-                Rest
-
-        newGameStatus =
+        newStatus =
             if wasLastRound then
                 Finished
 
             else
-                InProgress
-
-        newModel =
-            { model
-                | finishedRounds = newFinishedRounds
-                , roundStatus = newRoundStatus
-                , gameStatus = newGameStatus
-                , remainingRest = getRest newFinishedRounds
-            }
+                Resting
     in
-    if isValidNextRound model newModel then
-        newModel
-
-    else
-        model
-
-
-isValidNextRound : Model -> Model -> Bool
-isValidNextRound model newModel =
-    let
-        gameIsStarted =
-            model.gameStatus == InProgress
-
-        isValidRoundTransition =
-            newModel.finishedRounds <= maxRounds
-    in
-    gameIsStarted && isValidRoundTransition
+    { model
+        | finishedRounds = newFinishedRounds
+        , status = newStatus
+        , remainingRest = getRest newFinishedRounds
+    }
 
 
 
@@ -266,31 +207,28 @@ view : Model -> Html Msg
 view model =
     let
         elements =
-            case ( model.gameStatus, model.roundStatus ) of
-                ( Init, None ) ->
+            case model.status of
+                Init ->
                     [ gameTextRow model
                     , buttonsRow model
                     ]
 
-                ( InProgress, Pushing ) ->
+                Pushing ->
                     [ gameTextRow model
                     , totalRepsRow model
                     , nextRepsRow model
                     , buttonsRow model
                     ]
 
-                ( InProgress, Rest ) ->
+                Resting ->
                     [ gameTextRow model
                     , restRow model
                     ]
 
-                ( Finished, None ) ->
+                Finished ->
                     [ gameTextRow model
                     , totalTimeRow model
                     ]
-
-                _ ->
-                    [ gameTextRow model ]
     in
     Html.div []
         [ CDN.stylesheet
@@ -400,14 +338,14 @@ buttonsRow : Model -> Html Msg
 buttonsRow model =
     let
         buttons =
-            case model.gameStatus of
+            case model.status of
                 Init ->
                     [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ] ]
 
-                InProgress ->
+                Pushing ->
                     [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ] ]
 
-                Finished ->
+                _ ->
                     []
     in
     makeRow
@@ -430,8 +368,7 @@ gameTextRow model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { gameStatus = Init
-      , roundStatus = None
+    ( { status = Init
       , finishedRounds = 0
       , totalTime = 0
       , remainingRest = 0
