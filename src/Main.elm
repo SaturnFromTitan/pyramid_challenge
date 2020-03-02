@@ -137,20 +137,20 @@ getGameText model =
 getRest : Int -> Int
 getRest finishedRounds =
     let
-        nextReps =
-            getNextReps finishedRounds
+        finishedReps =
+            getNextReps (finishedRounds - 1)
+
+        multiplicator =
+            if finishedReps <= 3 then
+                5
+
+            else if finishedReps <= 6 then
+                10
+
+            else
+                20
     in
-    if nextReps == 0 then
-        0
-
-    else if nextReps < 4 then
-        30
-
-    else if nextReps < 7 then
-        60
-
-    else
-        120
+    finishedReps * multiplicator
 
 
 getTotalReps : Int -> Int
