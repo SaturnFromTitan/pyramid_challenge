@@ -32,7 +32,7 @@ getRest finishedRounds =
                 10
 
             else
-                20
+                15
     in
     finishedReps * multiplicator
 
