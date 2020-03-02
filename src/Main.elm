@@ -214,6 +214,7 @@ view model =
 
                 Resting ->
                     [ gameTextRow model
+                    , progressRow model
                     , restRow model
                     ]
 
@@ -330,7 +331,7 @@ nextRepsRow model =
         [ Grid.col
             [ Col.xs4, Col.textAlign Text.alignXsCenter ]
             [ Html.text "Now do"
-            , Html.h4 [] [ Html.text message ]
+            , Html.h1 [] [ Html.text message ]
             ]
         ]
 
