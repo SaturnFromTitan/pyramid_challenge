@@ -76,15 +76,11 @@ update msg model =
         newModel =
             case msg of
                 Tick _ ->
-                    case model.status of
-                        Pushing ->
-                            model |> tickSecond
+                    if List.member model.status [ Pushing, Resting ] then
+                        model |> tickSecond
 
-                        Resting ->
-                            model |> tickSecond
-
-                        _ ->
-                            model
+                    else
+                        model
 
                 StartChallenge ->
                     model |> startChallenge
