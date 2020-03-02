@@ -120,7 +120,7 @@ getGameText model =
             "Push, push, push!"
 
         Resting ->
-            "Pace yourself and get some rest..."
+            "Pace yourself..."
 
         Finished ->
             "You did it! Congrats!"
@@ -322,11 +322,13 @@ nextRepsRow model =
     let
         message =
             String.concat
-                [ "Next reps: "
-                , String.fromInt (getReps (model.finishedRounds + 1))
+                [ String.fromInt (getReps (model.finishedRounds + 1))
                 ]
     in
-    makeRow [ Html.text message ]
+    makeRow
+        [ Html.text "Now do"
+        , Html.h4 [] [ Html.text message ]
+        ]
 
 
 buttonsRow : Model -> Html Msg
@@ -335,10 +337,10 @@ buttonsRow model =
         buttons =
             case model.status of
                 Init ->
-                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go!" ] ]
+                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go" ] ]
 
                 Pushing ->
-                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Done!" ] ]
+                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Done" ] ]
 
                 _ ->
                     []
