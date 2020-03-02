@@ -17,17 +17,13 @@ import Time
 
 
 
--- Helpers
+-- Model
 
 
 sumOf1To : Int -> Int
 sumOf1To n =
     -- Gaussian sum formula
     n * (n + 1) // 2
-
-
-
--- Model
 
 
 maxReps : Int
@@ -118,7 +114,7 @@ getGameText : Model -> String
 getGameText model =
     case model.status of
         Init ->
-            "Ready for some Pushups?!"
+            "100 Pushups?!"
 
         Pushing ->
             "Push, push, push!"
@@ -339,10 +335,10 @@ buttonsRow model =
         buttons =
             case model.status of
                 Init ->
-                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Start Challenge!" ] ]
+                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go!" ] ]
 
                 Pushing ->
-                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Round Done!" ] ]
+                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Done!" ] ]
 
                 _ ->
                     []
@@ -352,7 +348,7 @@ buttonsRow model =
 
 gameTextRow : Model -> Html msg
 gameTextRow model =
-    makeRow [ Html.text (getGameText model) ]
+    makeRow [ Html.h3 [] [ Html.text (getGameText model) ] ]
 
 
 
