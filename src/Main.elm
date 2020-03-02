@@ -63,7 +63,6 @@ type alias Model =
     , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
-    , gameText : String
     }
 
 
@@ -80,7 +79,7 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        newModel_ =
+        newModel =
             case msg of
                 Tick _ ->
                     case model.gameStatus of
@@ -95,9 +94,6 @@ update msg model =
 
                 RoundDone ->
                     model |> advanceRound
-
-        newModel =
-            { newModel_ | gameText = getGameText newModel_ }
     in
     ( newModel, Cmd.none )
 
@@ -129,7 +125,7 @@ getGameText : Model -> String
 getGameText model =
     case model.gameStatus of
         Init ->
-            initGameText
+            "Ready for some Pushups?!"
 
         Finished ->
             "You did it! Congrats!"
@@ -403,16 +399,12 @@ gameTextRow : Model -> Html msg
 gameTextRow model =
     makeRow
         [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
-            [ Html.text model.gameText ]
+            [ Html.text (getGameText model) ]
         ]
 
 
 
 -- Init
-
-
-initGameText =
-    "Ready for some pushups?!"
 
 
 init : () -> ( Model, Cmd Msg )
@@ -422,7 +414,6 @@ init _ =
       , finishedRounds = 0
       , totalTime = 0
       , remainingRest = 0
-      , gameText = initGameText
       }
     , Cmd.none
     )
