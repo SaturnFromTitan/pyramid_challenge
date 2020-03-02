@@ -36,11 +36,17 @@ secondsToTime totalSeconds =
 
         seconds =
             remainderBy 60 remainder
+
+        components =
+            if hours > 0 then
+                [ hours, minutes, seconds ]
+
+            else
+                [ minutes, seconds ]
+
+        stringComponents =
+            List.map as2DigitString components
     in
-    String.concat
-        [ as2DigitString hours
-        , ":"
-        , as2DigitString minutes
-        , ":"
-        , as2DigitString seconds
-        ]
+    String.join
+        ":"
+        stringComponents
