@@ -11,7 +11,7 @@ import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Debug
 import Html exposing (Html)
-import Html.Events exposing (onClick)
+import Html.Attributes as Attributes
 import String
 import Time
 
@@ -234,7 +234,7 @@ makeDefaultRow elements =
     Grid.row
         [ Row.centerXs, Row.attrs [ Spacing.p1 ] ]
         [ Grid.col
-            [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            [ Col.textAlign Text.alignXsCenter ]
             elements
         ]
 
@@ -315,7 +315,7 @@ progressRow model =
 
 restRow : Model -> Html msg
 restRow model =
-    makeDefaultRow [ Html.text (secondsToTime model.remainingRest) ]
+    makeDefaultRow [ Html.h1 [] [ Html.text (secondsToTime model.remainingRest) ] ]
 
 
 nextRepsRow : Model -> Html msg
@@ -329,7 +329,7 @@ nextRepsRow model =
     Grid.row
         [ Row.centerXs, Row.attrs [ Spacing.pt5, Spacing.pb4 ] ]
         [ Grid.col
-            [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            [ Col.textAlign Text.alignXsCenter ]
             [ Html.text "Now do"
             , Html.h1 [] [ Html.text message ]
             ]
@@ -355,7 +355,12 @@ buttonsRow model =
 
 gameTextRow : Model -> Html msg
 gameTextRow model =
-    makeDefaultRow [ Html.h3 [] [ Html.text (getGameText model) ] ]
+    Grid.row
+        [ Row.centerXs, Row.attrs [ Spacing.p1, Spacing.pt5, Spacing.mt5 ] ]
+        [ Grid.col
+            [ Col.textAlign Text.alignXsCenter ]
+            [ Html.h3 [] [ Html.text (getGameText model) ] ]
+        ]
 
 
 
