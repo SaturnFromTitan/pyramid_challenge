@@ -236,22 +236,13 @@ view model =
         ]
 
 
-makeRow : List (Grid.Column msg) -> Html msg
+makeRow : List (Html msg) -> Html msg
 makeRow elements =
     Grid.row
         [ Row.centerXs, Row.attrs [ Spacing.p1 ] ]
-        elements
-
-
-makeRowWithTwoColumns : Html msg -> Html msg -> Html msg
-makeRowWithTwoColumns content1 content2 =
-    makeRow
         [ Grid.col
-            [ Col.xs2 ]
-            [ content1 ]
-        , Grid.col
-            [ Col.xs2, Col.textAlign Text.alignXsLeft ]
-            [ content2 ]
+            [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            elements
         ]
 
 
@@ -294,7 +285,7 @@ secondsToTime totalSeconds =
 
 totalTimeRow : Model -> Html msg
 totalTimeRow model =
-    makeRowWithTwoColumns (Html.text "Total time:") (Html.text (secondsToTime model.totalTime))
+    makeRow [ Html.text (secondsToTime model.totalTime) ]
 
 
 totalRepsRow : Model -> Html msg
@@ -303,16 +294,13 @@ totalRepsRow model =
         finishedReps =
             toFloat (getTotalReps model.finishedRounds)
 
-        label =
-            getRepsStatusText model
-
         progress =
             Progress.progress
                 [ Progress.success
                 , Progress.value finishedReps
                 ]
     in
-    makeRowWithTwoColumns (Html.text "Total reps:") progress
+    makeRow [ progress ]
 
 
 getRepsStatusText : Model -> String
@@ -326,12 +314,19 @@ getRepsStatusText model =
 
 restRow : Model -> Html msg
 restRow model =
-    makeRowWithTwoColumns (Html.text "Remaining rest:") (Html.text (secondsToTime model.remainingRest))
+    makeRow [ Html.text (secondsToTime model.remainingRest) ]
 
 
 nextRepsRow : Model -> Html msg
 nextRepsRow model =
-    makeRowWithTwoColumns (Html.text "Next reps:") (Html.text (String.fromInt (getNextReps model.finishedRounds)))
+    let
+        message =
+            String.concat
+                [ "Next reps: "
+                , String.fromInt (getNextReps model.finishedRounds)
+                ]
+    in
+    makeRow [ Html.text message ]
 
 
 buttonsRow : Model -> Html Msg
@@ -348,18 +343,12 @@ buttonsRow model =
                 _ ->
                     []
     in
-    makeRow
-        [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
-            buttons
-        ]
+    makeRow buttons
 
 
 gameTextRow : Model -> Html msg
 gameTextRow model =
-    makeRow
-        [ Grid.col [ Col.xs4, Col.textAlign Text.alignXsCenter ]
-            [ Html.text (getGameText model) ]
-        ]
+    makeRow [ Html.text (getGameText model) ]
 
 
 
