@@ -228,8 +228,8 @@ view model =
         ]
 
 
-makeRow : List (Html msg) -> Html msg
-makeRow elements =
+makeDefaultRow : List (Html msg) -> Html msg
+makeDefaultRow elements =
     Grid.row
         [ Row.centerXs, Row.attrs [ Spacing.p1 ] ]
         [ Grid.col
@@ -247,7 +247,7 @@ totalTimeRow model =
                 , secondsToTime model.totalTime
                 ]
     in
-    makeRow [ Html.text message ]
+    makeDefaultRow [ Html.text message ]
 
 
 as2DigitString : Int -> String
@@ -306,7 +306,7 @@ progressRow model =
                 , String.fromInt maxTotalReps
                 ]
     in
-    makeRow
+    makeDefaultRow
         [ progress
         , Html.text progressText
         ]
@@ -314,7 +314,7 @@ progressRow model =
 
 restRow : Model -> Html msg
 restRow model =
-    makeRow [ Html.text (secondsToTime model.remainingRest) ]
+    makeDefaultRow [ Html.text (secondsToTime model.remainingRest) ]
 
 
 nextRepsRow : Model -> Html msg
@@ -325,9 +325,13 @@ nextRepsRow model =
                 [ String.fromInt (getReps (model.finishedRounds + 1))
                 ]
     in
-    makeRow
-        [ Html.text "Now do"
-        , Html.h4 [] [ Html.text message ]
+    Grid.row
+        [ Row.centerXs, Row.attrs [ Spacing.pt5, Spacing.pb4 ] ]
+        [ Grid.col
+            [ Col.xs4, Col.textAlign Text.alignXsCenter ]
+            [ Html.text "Now do"
+            , Html.h4 [] [ Html.text message ]
+            ]
         ]
 
 
@@ -345,12 +349,12 @@ buttonsRow model =
                 _ ->
                     []
     in
-    makeRow buttons
+    makeDefaultRow buttons
 
 
 gameTextRow : Model -> Html msg
 gameTextRow model =
-    makeRow [ Html.h3 [] [ Html.text (getGameText model) ] ]
+    makeDefaultRow [ Html.h3 [] [ Html.text (getGameText model) ] ]
 
 
 
