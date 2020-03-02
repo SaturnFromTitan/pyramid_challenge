@@ -211,7 +211,7 @@ view model =
 
                 Pushing ->
                     [ gameTextRow model
-                    , totalRepsRow model
+                    , progressRow model
                     , nextRepsRow model
                     , buttonsRow model
                     ]
@@ -240,6 +240,18 @@ makeRow elements =
             [ Col.xs4, Col.textAlign Text.alignXsCenter ]
             elements
         ]
+
+
+totalTimeRow : Model -> Html msg
+totalTimeRow model =
+    let
+        message =
+            String.concat
+                [ "Your time: "
+                , secondsToTime model.totalTime
+                ]
+    in
+    makeRow [ Html.text message ]
 
 
 as2DigitString : Int -> String
@@ -279,13 +291,8 @@ secondsToTime totalSeconds =
         ]
 
 
-totalTimeRow : Model -> Html msg
-totalTimeRow model =
-    makeRow [ Html.text (secondsToTime model.totalTime) ]
-
-
-totalRepsRow : Model -> Html msg
-totalRepsRow model =
+progressRow : Model -> Html msg
+progressRow model =
     let
         finishedReps =
             toFloat (getTotalReps model.finishedRounds)
@@ -295,16 +302,17 @@ totalRepsRow model =
                 [ Progress.success
                 , Progress.value finishedReps
                 ]
+
+        progressText =
+            String.concat
+                [ String.fromInt (getTotalReps model.finishedRounds)
+                , " out of "
+                , String.fromInt maxTotalReps
+                ]
     in
-    makeRow [ progress ]
-
-
-getRepsStatusText : Model -> String
-getRepsStatusText model =
-    String.concat
-        [ String.fromInt (getTotalReps model.finishedRounds)
-        , " of "
-        , String.fromInt maxTotalReps
+    makeRow
+        [ progress
+        , Html.text progressText
         ]
 
 
