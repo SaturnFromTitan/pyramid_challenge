@@ -1,5 +1,6 @@
 module Update exposing (Msg(..), subscriptions, update)
 
+import Keyboard exposing (Key(..), RawKey)
 import Model exposing (Model, getRest, maxRounds)
 import String
 import Time
@@ -10,23 +11,24 @@ type Msg
     = Tick Time.Posix
     | StartChallenge
     | RoundDone
+    | KeyDown RawKey
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every 1000 Tick
+    Sub.batch
+        [ Keyboard.downs KeyDown
+        , Time.every 1000 Tick
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        isInProgress =
-            List.member model.status [ Model.Pushing, Model.Resting ]
-
         newModel =
             case msg of
                 Tick _ ->
-                    if isInProgress then
+                    if isInProgress model then
                         model |> tickSecond
 
                     else
@@ -37,8 +39,25 @@ update msg model =
 
                 RoundDone ->
                     model |> advanceRound
+
+                KeyDown rawKey ->
+                    let
+                        key =
+                            Keyboard.anyKeyOriginal rawKey
+                    in
+                    case key of
+                        Just Spacebar ->
+                            model |> advanceRound
+
+                        _ ->
+                            model
     in
     ( newModel, Cmd.none )
+
+
+isInProgress : Model -> Bool
+isInProgress model =
+    List.member model.status [ Model.Pushing, Model.Resting ]
 
 
 tickSecond : Model -> Model
@@ -72,9 +91,6 @@ startChallenge model =
 advanceRound : Model -> Model
 advanceRound model =
     let
-        hasStarted =
-            model.status /= Model.Init
-
         newFinishedRounds =
             model.finishedRounds + 1
 
@@ -87,16 +103,13 @@ advanceRound model =
 
             else
                 Model.Resting
-
-        newModel =
-            { model
-                | finishedRounds = newFinishedRounds
-                , status = newStatus
-                , remainingRest = getRest newFinishedRounds
-            }
     in
-    if hasStarted then
-        newModel
+    if isInProgress model then
+        { model
+            | finishedRounds = newFinishedRounds
+            , status = newStatus
+            , remainingRest = getRest newFinishedRounds
+        }
 
     else
         model
