@@ -59,10 +59,10 @@ getRest finishedRounds =
             getReps finishedRounds
 
         restAmount =
-            if finishedReps <= 3 then
+            if finishedReps <= 4 then
                 finishedReps * 7
 
-            else if finishedReps <= 6 then
+            else if finishedReps <= 7 then
                 finishedReps * 11
 
             else
