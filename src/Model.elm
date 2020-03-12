@@ -42,6 +42,11 @@ maxTotalReps =
     2 * sumOf1To maxReps - maxReps
 
 
+maxRest : Int
+maxRest =
+    90
+
+
 getRest : Int -> Int
 getRest finishedRounds =
     let
@@ -57,8 +62,11 @@ getRest finishedRounds =
 
             else
                 15
+
+        restAmount =
+            finishedReps * multiplicator
     in
-    finishedReps * multiplicator
+    min maxRest restAmount
 
 
 getTotalReps : Int -> Int
