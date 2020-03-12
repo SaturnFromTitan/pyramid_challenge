@@ -1,4 +1,4 @@
-module Model exposing (Model, Status(..), getGameText, getReps, getRest, getTotalReps, initialModel, maxReps, maxRounds, maxTotalReps)
+module Model exposing (Model, Status(..), getGameText, getReps, getRest, getTotalReps, initialModel, isInProgress, maxReps, maxRounds, maxTotalReps)
 
 import Utilities exposing (sumOf1To)
 
@@ -25,6 +25,11 @@ initialModel =
     , totalTime = 0
     , remainingRest = 0
     }
+
+
+isInProgress : Model -> Bool
+isInProgress model =
+    List.member model.status [ Pushing, Resting ]
 
 
 maxReps : Int

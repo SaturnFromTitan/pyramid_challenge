@@ -1,7 +1,7 @@
 module Update exposing (Msg(..), subscriptions, update)
 
 import Keyboard exposing (Key(..), RawKey)
-import Model exposing (Model, getRest, maxRounds)
+import Model exposing (Model, getRest, isInProgress, maxRounds)
 import String
 import Time
 import Utilities exposing (sumOf1To)
@@ -53,11 +53,6 @@ update msg model =
                             model
     in
     ( newModel, Cmd.none )
-
-
-isInProgress : Model -> Bool
-isInProgress model =
-    List.member model.status [ Model.Pushing, Model.Resting ]
 
 
 tickSecond : Model -> Model
