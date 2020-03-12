@@ -40,17 +40,8 @@ update msg model =
                 RoundDone ->
                     model |> advanceRound
 
-                KeyDown rawKey ->
-                    let
-                        key =
-                            Keyboard.anyKeyOriginal rawKey
-                    in
-                    case key of
-                        Just Spacebar ->
-                            model |> advanceRound
-
-                        _ ->
-                            model
+                KeyDown _ ->
+                    model |> advanceRound
     in
     ( newModel, Cmd.none )
 
@@ -86,6 +77,9 @@ startChallenge model =
 advanceRound : Model -> Model
 advanceRound model =
     let
+        isPushing =
+            model.status == Model.Pushing
+
         newFinishedRounds =
             model.finishedRounds + 1
 
@@ -99,7 +93,7 @@ advanceRound model =
             else
                 Model.Resting
     in
-    if isInProgress model then
+    if isPushing then
         { model
             | finishedRounds = newFinishedRounds
             , status = newStatus
