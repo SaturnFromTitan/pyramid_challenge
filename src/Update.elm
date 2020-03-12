@@ -1,6 +1,7 @@
 module Update exposing (Msg(..), subscriptions, update)
 
-import Keyboard exposing (Key(..), RawKey)
+import Browser.Events exposing (onKeyPress)
+import Json.Decode as Decode
 import Model exposing (Model, getRest, isInProgress, maxRounds)
 import String
 import Time
@@ -11,13 +12,13 @@ type Msg
     = Tick Time.Posix
     | StartChallenge
     | RoundDone
-    | KeyDown RawKey
+    | KeyPressed
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Keyboard.downs KeyDown
+        [ onKeyPress (Decode.succeed KeyPressed)
         , Time.every 1000 Tick
         ]
 
@@ -40,17 +41,8 @@ update msg model =
                 RoundDone ->
                     model |> advanceRound
 
-                KeyDown rawKey ->
-                    let
-                        key =
-                            Keyboard.anyKeyOriginal rawKey
-                    in
-                    case key of
-                        Just Spacebar ->
-                            model |> advanceRound
-
-                        _ ->
-                            model
+                KeyPressed ->
+                    model |> advanceRound
     in
     ( newModel, Cmd.none )
 
