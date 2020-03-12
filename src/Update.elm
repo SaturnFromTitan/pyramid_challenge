@@ -72,6 +72,9 @@ startChallenge model =
 advanceRound : Model -> Model
 advanceRound model =
     let
+        hasStarted =
+            model.status /= Model.Init
+
         newFinishedRounds =
             model.finishedRounds + 1
 
@@ -84,9 +87,16 @@ advanceRound model =
 
             else
                 Model.Resting
+
+        newModel =
+            { model
+                | finishedRounds = newFinishedRounds
+                , status = newStatus
+                , remainingRest = getRest newFinishedRounds
+            }
     in
-    { model
-        | finishedRounds = newFinishedRounds
-        , status = newStatus
-        , remainingRest = getRest newFinishedRounds
-    }
+    if hasStarted then
+        newModel
+
+    else
+        model

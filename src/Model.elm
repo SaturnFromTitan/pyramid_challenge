@@ -3,6 +3,30 @@ module Model exposing (Model, Status(..), getGameText, getReps, getRest, getTota
 import Utilities exposing (sumOf1To)
 
 
+type Status
+    = Init
+    | Pushing
+    | Resting
+    | Finished
+
+
+type alias Model =
+    { status : Status
+    , finishedRounds : Int
+    , totalTime : Int
+    , remainingRest : Int
+    }
+
+
+initialModel : Model
+initialModel =
+    { status = Init
+    , finishedRounds = 0
+    , totalTime = 0
+    , remainingRest = 0
+    }
+
+
 maxReps : Int
 maxReps =
     10
@@ -69,27 +93,3 @@ getGameText model =
 
         Finished ->
             "You did it! Congrats!"
-
-
-type Status
-    = Init
-    | Pushing
-    | Resting
-    | Finished
-
-
-type alias Model =
-    { status : Status
-    , finishedRounds : Int
-    , totalTime : Int
-    , remainingRest : Int
-    }
-
-
-initialModel : Model
-initialModel =
-    { status = Init
-    , finishedRounds = 0
-    , totalTime = 0
-    , remainingRest = 0
-    }
