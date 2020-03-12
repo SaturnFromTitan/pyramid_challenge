@@ -58,18 +58,15 @@ getRest finishedRounds =
         finishedReps =
             getReps finishedRounds
 
-        multiplicator =
+        restAmount =
             if finishedReps <= 3 then
-                5
+                finishedReps * 7
 
             else if finishedReps <= 6 then
-                10
+                finishedReps * 11
 
             else
-                15
-
-        restAmount =
-            finishedReps * multiplicator
+                finishedReps * 15
     in
     min maxRest restAmount
 
