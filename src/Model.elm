@@ -49,7 +49,7 @@ maxTotalReps =
 
 maxRest : Int
 maxRest =
-    90
+    60
 
 
 getRest : Int -> Int
@@ -59,14 +59,11 @@ getRest finishedRounds =
             getReps finishedRounds
 
         restAmount =
-            if finishedReps <= 4 then
-                finishedReps * 7
-
-            else if finishedReps <= 7 then
-                finishedReps * 11
+            if finishedReps <= 3 then
+                5
 
             else
-                finishedReps * 15
+                (finishedReps - 1) * 10
     in
     min maxRest restAmount
 
