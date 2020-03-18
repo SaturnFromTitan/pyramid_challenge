@@ -1,4 +1,4 @@
-module Model exposing (Exercise(..), Model, Status(..), getGameText, getMaxReps, getMaxRounds, getMaxTotalReps, getReps, getRest, getTotalReps, initialModel, isInProgress)
+module Model exposing (Exercise(..), Model, Status(..), getGameText, getMaxRepsPerRound, getRepsOfRound, getRestAfterRound, getTotalFinishedReps, getTotalReps, getTotalRounds, initialModel, isInProgress)
 
 import Utilities exposing (sumOf1To)
 
@@ -39,8 +39,8 @@ isInProgress model =
     List.member model.status [ Doing, Resting ]
 
 
-getMaxReps : Model -> Int
-getMaxReps model =
+getMaxRepsPerRound : Model -> Int
+getMaxRepsPerRound model =
     case model.exercise of
         Pushups ->
             10
@@ -49,20 +49,20 @@ getMaxReps model =
             4
 
 
-getMaxRounds : Model -> Int
-getMaxRounds model =
+getTotalRounds : Model -> Int
+getTotalRounds model =
     let
         maxReps =
-            getMaxReps model
+            getMaxRepsPerRound model
     in
     2 * maxReps - 1
 
 
-getMaxTotalReps : Model -> Int
-getMaxTotalReps model =
+getTotalFinishedReps : Model -> Int
+getTotalFinishedReps model =
     let
         maxReps =
-            getMaxReps model
+            getMaxRepsPerRound model
     in
     2 * sumOf1To maxReps - maxReps
 
@@ -71,13 +71,13 @@ getTotalReps : Model -> Int
 getTotalReps model =
     let
         maxReps =
-            getMaxReps model
+            getMaxRepsPerRound model
 
         maxRounds =
-            getMaxRounds model
+            getTotalRounds model
 
         maxTotalReps =
-            getMaxTotalReps model
+            getTotalFinishedReps model
     in
     if model.finishedRounds <= maxReps then
         sumOf1To model.finishedRounds
@@ -86,11 +86,11 @@ getTotalReps model =
         maxTotalReps - sumOf1To (maxRounds - model.finishedRounds)
 
 
-getReps : Model -> Int -> Int
-getReps model finishedRounds =
+getRepsOfRound : Model -> Int -> Int
+getRepsOfRound model finishedRounds =
     let
         maxReps =
-            getMaxReps model
+            getMaxRepsPerRound model
     in
     if finishedRounds <= maxReps then
         finishedRounds
@@ -104,25 +104,25 @@ maxRest =
     60
 
 
-getRest : Model -> Int -> Int
-getRest model finishedRounds =
+getRestAfterRound : Model -> Int -> Int
+getRestAfterRound model finishedRounds =
     let
         restAmount =
             case model.exercise of
                 Pushups ->
-                    getRestPushups model finishedRounds
+                    getRestAfterRoundPushups model finishedRounds
 
                 Pullups ->
-                    getRestPullups model finishedRounds
+                    getRestAfterRoundPullups model finishedRounds
     in
     min maxRest restAmount
 
 
-getRestPushups : Model -> Int -> Int
-getRestPushups model finishedRounds =
+getRestAfterRoundPushups : Model -> Int -> Int
+getRestAfterRoundPushups model finishedRounds =
     let
         finishedReps =
-            getReps model finishedRounds
+            getRepsOfRound model finishedRounds
     in
     if finishedReps <= 3 then
         5
@@ -131,11 +131,11 @@ getRestPushups model finishedRounds =
         (finishedReps - 1) * 10
 
 
-getRestPullups : Model -> Int -> Int
-getRestPullups model finishedRounds =
+getRestAfterRoundPullups : Model -> Int -> Int
+getRestAfterRoundPullups model finishedRounds =
     let
         finishedReps =
-            getReps model finishedRounds
+            getRepsOfRound model finishedRounds
     in
     if finishedReps <= 2 then
         30

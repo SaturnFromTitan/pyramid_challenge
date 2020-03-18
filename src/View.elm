@@ -10,7 +10,7 @@ import Bootstrap.Text as Text
 import Bootstrap.Utilities.Spacing as Spacing
 import Html exposing (Html)
 import Html.Attributes as Attributes
-import Model exposing (Model, getGameText, getMaxTotalReps, getReps, getTotalReps)
+import Model exposing (Model, getGameText, getRepsOfRound, getTotalFinishedReps, getTotalReps)
 import Update exposing (Msg(..))
 import Utilities exposing (secondsToTime)
 
@@ -73,7 +73,7 @@ progressRow model =
             toFloat (getTotalReps model)
 
         maxTotalReps =
-            toFloat (getMaxTotalReps model)
+            toFloat (getTotalFinishedReps model)
 
         valueAsPercent =
             finishedReps / maxTotalReps * 100
@@ -88,7 +88,7 @@ progressRow model =
             String.concat
                 [ String.fromInt (getTotalReps model)
                 , " out of "
-                , String.fromInt (getMaxTotalReps model)
+                , String.fromInt (getTotalFinishedReps model)
                 ]
     in
     makeDefaultRow
@@ -110,7 +110,7 @@ nextRepsRow model =
     let
         message =
             String.concat
-                [ String.fromInt (getReps model (model.finishedRounds + 1))
+                [ String.fromInt (getRepsOfRound model (model.finishedRounds + 1))
                 ]
     in
     makeDefaultRow

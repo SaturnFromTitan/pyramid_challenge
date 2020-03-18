@@ -1,7 +1,7 @@
 module Update exposing (Msg(..), subscriptions, update)
 
 import Keyboard exposing (Key(..), RawKey)
-import Model exposing (Model, getMaxRounds, getRest, isInProgress)
+import Model exposing (Model, getRestAfterRound, getTotalRounds, isInProgress)
 import String
 import Time
 import Utilities exposing (sumOf1To)
@@ -87,7 +87,7 @@ advanceRound model =
             model.finishedRounds + 1
 
         wasLastRound =
-            newFinishedRounds == getMaxRounds model
+            newFinishedRounds == getTotalRounds model
 
         newStatus =
             if wasLastRound then
@@ -100,7 +100,7 @@ advanceRound model =
         { model
             | finishedRounds = newFinishedRounds
             , status = newStatus
-            , remainingRest = getRest model newFinishedRounds
+            , remainingRest = getRestAfterRound model newFinishedRounds
         }
 
     else
