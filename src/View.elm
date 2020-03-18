@@ -72,10 +72,16 @@ progressRow model =
         finishedReps =
             toFloat (getTotalReps model)
 
+        maxTotalReps =
+            toFloat (getMaxTotalReps model)
+
+        valueAsPercent =
+            finishedReps / maxTotalReps * 100
+
         progress =
             Progress.progress
                 [ Progress.success
-                , Progress.value finishedReps
+                , Progress.value valueAsPercent
                 ]
 
         progressText =
