@@ -1,17 +1,23 @@
-module Model exposing (Model, Status(..), getGameText, getReps, getRest, getTotalReps, initialModel, isInProgress, maxReps, maxRounds, maxTotalReps)
+module Model exposing (Exercise(..), Model, Status(..), getGameText, getMaxReps, getMaxRounds, getMaxTotalReps, getReps, getRest, getTotalReps, initialModel, isInProgress)
 
 import Utilities exposing (sumOf1To)
 
 
 type Status
     = Init
-    | Pushing
+    | Doing
     | Resting
     | Finished
 
 
+type Exercise
+    = Pushups
+    | Pullups
+
+
 type alias Model =
     { status : Status
+    , exercise : Exercise
     , finishedRounds : Int
     , totalTime : Int
     , remainingRest : Int
@@ -21,6 +27,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     { status = Init
+    , exercise = Pushups
     , finishedRounds = 0
     , totalTime = 0
     , remainingRest = 0
@@ -29,56 +36,62 @@ initialModel =
 
 isInProgress : Model -> Bool
 isInProgress model =
-    List.member model.status [ Pushing, Resting ]
+    List.member model.status [ Doing, Resting ]
 
 
-maxReps : Int
-maxReps =
-    10
+getMaxReps : Model -> Int
+getMaxReps model =
+    case model.exercise of
+        Pushups ->
+            10
+
+        Pullups ->
+            4
 
 
-maxRounds : Int
-maxRounds =
+getMaxRounds : Model -> Int
+getMaxRounds model =
+    let
+        maxReps =
+            getMaxReps model
+    in
     2 * maxReps - 1
 
 
-maxTotalReps : Int
-maxTotalReps =
+getMaxTotalReps : Model -> Int
+getMaxTotalReps model =
+    let
+        maxReps =
+            getMaxReps model
+    in
     2 * sumOf1To maxReps - maxReps
 
 
-maxRest : Int
-maxRest =
-    60
-
-
-getRest : Int -> Int
-getRest finishedRounds =
+getTotalReps : Model -> Int
+getTotalReps model =
     let
-        finishedReps =
-            getReps finishedRounds
+        maxReps =
+            getMaxReps model
 
-        restAmount =
-            if finishedReps <= 3 then
-                5
+        maxRounds =
+            getMaxRounds model
 
-            else
-                (finishedReps - 1) * 10
+        maxTotalReps =
+            getMaxTotalReps model
     in
-    min maxRest restAmount
-
-
-getTotalReps : Int -> Int
-getTotalReps finishedRounds =
-    if finishedRounds <= maxReps then
-        sumOf1To finishedRounds
+    if model.finishedRounds <= maxReps then
+        sumOf1To model.finishedRounds
 
     else
-        maxTotalReps - sumOf1To (maxRounds - finishedRounds)
+        maxTotalReps - sumOf1To (maxRounds - model.finishedRounds)
 
 
-getReps : Int -> Int
-getReps finishedRounds =
+getReps : Model -> Int -> Int
+getReps model finishedRounds =
+    let
+        maxReps =
+            getMaxReps model
+    in
     if finishedRounds <= maxReps then
         finishedRounds
 
@@ -86,14 +99,64 @@ getReps finishedRounds =
         2 * maxReps - finishedRounds
 
 
+maxRest : Int
+maxRest =
+    60
+
+
+getRest : Model -> Int -> Int
+getRest model finishedRounds =
+    let
+        restAmount =
+            case model.exercise of
+                Pushups ->
+                    getRestPushups model finishedRounds
+
+                Pullups ->
+                    getRestPullups model finishedRounds
+    in
+    min maxRest restAmount
+
+
+getRestPushups : Model -> Int -> Int
+getRestPushups model finishedRounds =
+    let
+        finishedReps =
+            getReps model finishedRounds
+    in
+    if finishedReps <= 3 then
+        5
+
+    else
+        (finishedReps - 1) * 10
+
+
+getRestPullups : Model -> Int -> Int
+getRestPullups model finishedRounds =
+    let
+        finishedReps =
+            getReps model finishedRounds
+    in
+    if finishedReps <= 2 then
+        30
+
+    else
+        maxRest
+
+
 getGameText : Model -> String
 getGameText model =
     case model.status of
         Init ->
-            "100 Pushups?!"
+            "The Pyramid Challenge"
 
-        Pushing ->
-            "Push, push, push!"
+        Doing ->
+            case model.exercise of
+                Pushups ->
+                    "Push, push, push!"
+
+                Pullups ->
+                    "Pull, pull, pull!"
 
         Resting ->
             "Pace yourself..."

@@ -10,7 +10,7 @@ import Bootstrap.Text as Text
 import Bootstrap.Utilities.Spacing as Spacing
 import Html exposing (Html)
 import Html.Attributes as Attributes
-import Model exposing (Model, getGameText, getReps, getTotalReps, maxTotalReps)
+import Model exposing (Model, getGameText, getMaxTotalReps, getReps, getTotalReps)
 import Update exposing (Msg(..))
 import Utilities exposing (secondsToTime)
 
@@ -25,7 +25,7 @@ view model =
                     , buttonsRow model
                     ]
 
-                Model.Pushing ->
+                Model.Doing ->
                     [ gameTextRow model
                     , progressRow model
                     , nextRepsRow model
@@ -70,7 +70,7 @@ progressRow : Model -> Html msg
 progressRow model =
     let
         finishedReps =
-            toFloat (getTotalReps model.finishedRounds)
+            toFloat (getTotalReps model)
 
         progress =
             Progress.progress
@@ -80,9 +80,9 @@ progressRow model =
 
         progressText =
             String.concat
-                [ String.fromInt (getTotalReps model.finishedRounds)
+                [ String.fromInt (getTotalReps model)
                 , " out of "
-                , String.fromInt maxTotalReps
+                , String.fromInt (getMaxTotalReps model)
                 ]
     in
     makeDefaultRow
@@ -104,7 +104,7 @@ nextRepsRow model =
     let
         message =
             String.concat
-                [ String.fromInt (getReps (model.finishedRounds + 1))
+                [ String.fromInt (getReps model (model.finishedRounds + 1))
                 ]
     in
     makeDefaultRow
@@ -132,12 +132,37 @@ buttonsRow model =
         buttons =
             case model.status of
                 Model.Init ->
-                    [ Button.submitButton [ Button.primary, Button.onClick StartChallenge ] [ Html.text "Let's go" ] ]
+                    [ pushupButton, pullupButton ]
 
-                Model.Pushing ->
-                    [ Button.submitButton [ Button.primary, Button.onClick RoundDone ] [ Html.text "Done" ] ]
+                Model.Doing ->
+                    [ roundDoneButton ]
 
                 _ ->
                     []
     in
     makeDefaultRow buttons [ Spacing.p1 ]
+
+
+pushupButton : Html Msg
+pushupButton =
+    makeSubmitButton (StartChallenge Model.Pushups) "Pushups"
+
+
+pullupButton : Html Msg
+pullupButton =
+    makeSubmitButton (StartChallenge Model.Pullups) "Pullups"
+
+
+roundDoneButton : Html Msg
+roundDoneButton =
+    makeSubmitButton RoundDone "Done"
+
+
+makeSubmitButton : Msg -> String -> Html Msg
+makeSubmitButton msg text =
+    Button.submitButton
+        [ Button.primary
+        , Button.onClick msg
+        , Button.attrs [ Spacing.ml2, Spacing.mr2 ]
+        ]
+        [ Html.text text ]

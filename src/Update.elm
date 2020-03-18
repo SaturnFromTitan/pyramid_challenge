@@ -1,7 +1,7 @@
 module Update exposing (Msg(..), subscriptions, update)
 
 import Keyboard exposing (Key(..), RawKey)
-import Model exposing (Model, getRest, isInProgress, maxRounds)
+import Model exposing (Model, getMaxRounds, getRest, isInProgress)
 import String
 import Time
 import Utilities exposing (sumOf1To)
@@ -9,7 +9,7 @@ import Utilities exposing (sumOf1To)
 
 type Msg
     = Tick Time.Posix
-    | StartChallenge
+    | StartChallenge Model.Exercise
     | RoundDone
     | KeyDown RawKey
 
@@ -34,8 +34,8 @@ update msg model =
                     else
                         model
 
-                StartChallenge ->
-                    model |> startChallenge
+                StartChallenge exercise ->
+                    model |> startChallenge exercise
 
                 RoundDone ->
                     model |> advanceRound
@@ -57,7 +57,7 @@ tickSecond model =
 
         newStatus =
             if restIsOver then
-                Model.Pushing
+                Model.Doing
 
             else
                 Model.Resting
@@ -69,22 +69,25 @@ tickSecond model =
     }
 
 
-startChallenge : Model -> Model
-startChallenge model =
-    { model | status = Model.Pushing }
+startChallenge : Model.Exercise -> Model -> Model
+startChallenge exercise model =
+    { model
+        | status = Model.Doing
+        , exercise = exercise
+    }
 
 
 advanceRound : Model -> Model
 advanceRound model =
     let
         isPushing =
-            model.status == Model.Pushing
+            model.status == Model.Doing
 
         newFinishedRounds =
             model.finishedRounds + 1
 
         wasLastRound =
-            newFinishedRounds == maxRounds
+            newFinishedRounds == getMaxRounds model
 
         newStatus =
             if wasLastRound then
@@ -97,7 +100,7 @@ advanceRound model =
         { model
             | finishedRounds = newFinishedRounds
             , status = newStatus
-            , remainingRest = getRest newFinishedRounds
+            , remainingRest = getRest model newFinishedRounds
         }
 
     else
