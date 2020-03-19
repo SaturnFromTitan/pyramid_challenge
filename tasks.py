@@ -24,8 +24,8 @@ def deploy(context):
     The strategy of this command is to...
     1. check out a temporary branch
     2. build the main.js file
-    3. commit the file to the temporary branch
-    4. push to Heroku
+    3. move all build files to the ./build directory
+    4. push the content of ./build to Heroku
     5. delete the temporary branch including the build files
 
     That way we make sure that the latest elm code is being deployed without
@@ -48,17 +48,13 @@ def deploy(context):
 
     # build
     _build(context)
-    with open("index.php", "w") as f:
-        f.write("<?php header( 'Location: /index.html' ) ;  ?>")
 
     # copy everything into the /build directory
     context.run("mkdir -p build")
-    context.run("cp -a ./vendor ./build")
-    context.run("cp -a ./assets ./build")
-    context.run("cp -a ./soundManager.js ./build")
-    context.run("cp -a ./main.js ./build")
-    context.run("cp -a ./index.html ./build")
-    context.run("cp -a ./index.php ./build")
+    directories_to_copy = ["vendor", "assets"]
+    files_to_copy = ["soundManager.js", "static.json", "main.js", "index.html"]
+    for name in directories_to_copy + files_to_copy:
+        context.run(f"cp -a ./{name} ./build")
 
     # add to build git
     context.run("git add --force build")
