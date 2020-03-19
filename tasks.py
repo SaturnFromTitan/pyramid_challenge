@@ -6,7 +6,7 @@ def _build(context):
 
 
 @invoke.task
-def build_locally(context):
+def build(context):
     """ Compiles the latest elm code to main.js which is used in index.html """
     _build(context)
 
@@ -55,6 +55,9 @@ def deploy(context):
     files_to_copy = ["soundManager.js", "static.json", "main.js", "index.html"]
     for name in directories_to_copy + files_to_copy:
         context.run(f"cp -a ./{name} ./build")
+
+    # this shouldn't be necessary. but somehow is...
+    context.run("cp -a ./assets/images/favicon.ico ./build")
 
     # add to build git
     context.run("git add --force build")
