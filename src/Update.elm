@@ -2,6 +2,7 @@ module Update exposing (Msg(..), subscriptions, update)
 
 import Keyboard exposing (Key(..), RawKey)
 import Model exposing (Model, getRestAfterRound, getTotalRounds, isInProgress)
+import Sound exposing (Sound, play)
 import String
 import Time
 import Utilities exposing (sumOf1To)
@@ -25,14 +26,14 @@ subscriptions model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        newModel =
+        ( newModel, sounds ) =
             case msg of
                 Tick _ ->
                     if isInProgress model then
                         model |> tickSecond
 
                     else
-                        model
+                        ( model, [] )
 
                 StartChallenge exercise ->
                     model |> startChallenge exercise
@@ -43,10 +44,12 @@ update msg model =
                 KeyDown _ ->
                     model |> advanceRound
     in
-    ( newModel, Cmd.none )
+    ( newModel
+    , Cmd.batch <| List.map Sound.play sounds
+    )
 
 
-tickSecond : Model -> Model
+tickSecond : Model -> ( Model, List Sound )
 tickSecond model =
     let
         newRemainingRest =
@@ -61,23 +64,34 @@ tickSecond model =
 
             else
                 Model.Resting
+
+        sounds =
+            if newRemainingRest == 3 then
+                [ Sound.Countdown ]
+
+            else
+                []
     in
-    { model
+    ( { model
         | totalTime = model.totalTime + 1
         , remainingRest = newRemainingRest
         , status = newStatus
-    }
+      }
+    , sounds
+    )
 
 
-startChallenge : Model.Exercise -> Model -> Model
+startChallenge : Model.Exercise -> Model -> ( Model, List Sound )
 startChallenge exercise model =
-    { model
+    ( { model
         | status = Model.Doing
         , exercise = exercise
-    }
+      }
+    , []
+    )
 
 
-advanceRound : Model -> Model
+advanceRound : Model -> ( Model, List Sound )
 advanceRound model =
     let
         isPushing =
@@ -95,13 +109,16 @@ advanceRound model =
 
             else
                 Model.Resting
-    in
-    if isPushing then
-        { model
-            | finishedRounds = newFinishedRounds
-            , status = newStatus
-            , remainingRest = getRestAfterRound model newFinishedRounds
-        }
 
-    else
-        model
+        newModel =
+            if isPushing then
+                { model
+                    | finishedRounds = newFinishedRounds
+                    , status = newStatus
+                    , remainingRest = getRestAfterRound model newFinishedRounds
+                }
+
+            else
+                model
+    in
+    ( newModel, [] )

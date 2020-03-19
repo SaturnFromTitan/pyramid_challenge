@@ -1,2 +1,8 @@
+# elm-package generated files
 elm-stuff
+
+# build artefacts
+main.js
+
+# Mac stuff
 .DS_Store

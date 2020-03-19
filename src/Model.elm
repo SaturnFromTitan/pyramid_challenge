@@ -1,5 +1,6 @@
 module Model exposing (Exercise(..), Model, Status(..), getGameText, getMaxRepsPerRound, getRepsOfRound, getRestAfterRound, getTotalFinishedReps, getTotalReps, getTotalRounds, initialModel, isInProgress)
 
+import Sound exposing (Sound)
 import Utilities exposing (sumOf1To)
 
 
