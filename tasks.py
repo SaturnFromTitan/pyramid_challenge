@@ -1,14 +1,12 @@
 import invoke
 
-JS_BUILD_FILE_NAME = "main.js"
-
 
 def _build(context):
-    context.run(f"elm make src/Main.elm --output={JS_BUILD_FILE_NAME}")
+    context.run(f"elm make src/Main.elm --output=main.js")
 
 
 @invoke.task
-def build(context):
+def build_locally(context):
     """ Compiles the latest elm code to main.js which is used in index.html """
     _build(context)
 
@@ -50,11 +48,27 @@ def deploy(context):
 
     # build
     _build(context)
+    with open("index.php", "w") as f:
+        f.write("<?php header( 'Location: /index.html' ) ;  ?>")
 
-    # add to git and push to heroku
-    context.run(f"git add --force {JS_BUILD_FILE_NAME}")
+    # copy everything into the /build directory
+    context.run("mkdir -p build")
+    context.run("cp -a ./vendor ./build")
+    context.run("cp -a ./assets ./build")
+    context.run("cp -a ./soundManager.js ./build")
+    context.run("cp -a ./main.js ./build")
+    context.run("cp -a ./index.html ./build")
+    context.run("cp -a ./index.php ./build")
+
+    # add to build git
+    context.run("git add --force build")
     context.run("git commit -m 'Build for deploy'")
-    context.run("git push heroku master --force")
+
+    # now we push the /build directory as the new root to heroku
+    # I don't understand the subtree magic below though
+    res = context.run("git subtree split --prefix build deploy")
+    res_str = res.stdout.strip()
+    context.run(f"git push heroku {res_str}:refs/heads/master --force")
 
     # clean up
     context.run(f"git checkout {previous_branch}")
