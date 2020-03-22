@@ -51,16 +51,6 @@ view model =
         ]
 
 
-makeDefaultRow : List (Html msg) -> List (Html.Attribute msg) -> Html msg
-makeDefaultRow elements rowAttributes =
-    Grid.row
-        [ Row.centerXs, Row.attrs rowAttributes ]
-        [ Grid.col
-            [ Col.xs5, Col.textAlign Text.alignXsCenter ]
-            elements
-        ]
-
-
 gameTextRow : Model -> Html msg
 gameTextRow model =
     makeDefaultRow
@@ -87,6 +77,11 @@ exerciseRadioButtons =
             , Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pullups) ] "Pullups"
             ]
         )
+
+
+startGameButton : Html Msg
+startGameButton =
+    makeSubmitButton StartChallenge "Let's go!"
 
 
 progressRow : Model -> Html msg
@@ -157,17 +152,21 @@ totalTimeRow model =
 
 roundDoneButtonRow : Html Msg
 roundDoneButtonRow =
-    makeDefaultRow [ roundDoneButton ] [ Spacing.p1 ]
+    let
+        button =
+            makeSubmitButton RoundDone "Done"
+    in
+    makeDefaultRow [ button ] [ Spacing.p1 ]
 
 
-startGameButton : Html Msg
-startGameButton =
-    makeSubmitButton StartChallenge "Let's go!"
-
-
-roundDoneButton : Html Msg
-roundDoneButton =
-    makeSubmitButton RoundDone "Done"
+makeDefaultRow : List (Html msg) -> List (Html.Attribute msg) -> Html msg
+makeDefaultRow elements rowAttributes =
+    Grid.row
+        [ Row.centerXs, Row.attrs rowAttributes ]
+        [ Grid.col
+            [ Col.xs5, Col.textAlign Text.alignXsCenter ]
+            elements
+        ]
 
 
 makeSubmitButton : Msg -> String -> Html Msg
