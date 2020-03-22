@@ -73,7 +73,7 @@ exerciseRadioButtons : Html Msg
 exerciseRadioButtons =
     Form.group []
         (Radio.radioList "exercise-radios"
-            [ Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pushups) ] "Pushups"
+            [ Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pushups), Radio.checked True ] "Pushups"
             , Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pullups) ] "Pullups"
             ]
         )
