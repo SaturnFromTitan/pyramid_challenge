@@ -10,7 +10,8 @@ import Utilities exposing (sumOf1To)
 
 type Msg
     = Tick Time.Posix
-    | StartChallenge Model.Exercise
+    | SetExercise Model.Exercise
+    | StartChallenge
     | RoundDone
     | KeyDown RawKey
 
@@ -28,6 +29,9 @@ update msg model =
     let
         ( newModel, sounds ) =
             case msg of
+                SetExercise exercise ->
+                    model |> setExercise exercise
+
                 Tick _ ->
                     if isInProgress model then
                         model |> tickSecond
@@ -35,8 +39,8 @@ update msg model =
                     else
                         ( model, [] )
 
-                StartChallenge exercise ->
-                    model |> startChallenge exercise
+                StartChallenge ->
+                    model |> startChallenge
 
                 RoundDone ->
                     model |> advanceRound
@@ -46,6 +50,15 @@ update msg model =
     in
     ( newModel
     , Cmd.batch <| List.map Sound.play sounds
+    )
+
+
+setExercise : Model.Exercise -> Model -> ( Model, List Sound )
+setExercise exercise model =
+    ( { model
+        | exercise = exercise
+      }
+    , []
     )
 
 
@@ -81,11 +94,10 @@ tickSecond model =
     )
 
 
-startChallenge : Model.Exercise -> Model -> ( Model, List Sound )
-startChallenge exercise model =
+startChallenge : Model -> ( Model, List Sound )
+startChallenge model =
     ( { model
         | status = Model.Doing
-        , exercise = exercise
       }
     , []
     )

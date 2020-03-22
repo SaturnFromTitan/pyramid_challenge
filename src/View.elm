@@ -2,6 +2,8 @@ module View exposing (view)
 
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
+import Bootstrap.Form as Form
+import Bootstrap.Form.Radio as Radio
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
@@ -22,14 +24,14 @@ view model =
             case model.status of
                 Model.Init ->
                     [ gameTextRow model
-                    , buttonsRow model
+                    , inputFormRow
                     ]
 
                 Model.Doing ->
                     [ gameTextRow model
                     , progressRow model
                     , nextRepsRow model
-                    , buttonsRow model
+                    , roundDoneButtonRow
                     ]
 
                 Model.Resting ->
@@ -64,6 +66,27 @@ gameTextRow model =
     makeDefaultRow
         [ Html.h3 [] [ Html.text (getGameText model) ] ]
         [ Spacing.p1, Spacing.pt5, Spacing.mt5 ]
+
+
+inputFormRow : Html Msg
+inputFormRow =
+    makeDefaultRow
+        [ Form.form []
+            [ exerciseRadioButtons
+            , startGameButton
+            ]
+        ]
+        [ Spacing.p1 ]
+
+
+exerciseRadioButtons : Html Msg
+exerciseRadioButtons =
+    Form.group []
+        (Radio.radioList "exercise-radios"
+            [ Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pushups) ] "Pushups"
+            , Radio.create [ Radio.inline, Radio.onClick (SetExercise Model.Pullups) ] "Pullups"
+            ]
+        )
 
 
 progressRow : Model -> Html msg
@@ -132,31 +155,14 @@ totalTimeRow model =
     makeDefaultRow [ Html.text message ] [ Spacing.p1 ]
 
 
-buttonsRow : Model -> Html Msg
-buttonsRow model =
-    let
-        buttons =
-            case model.status of
-                Model.Init ->
-                    [ pushupButton, pullupButton ]
-
-                Model.Doing ->
-                    [ roundDoneButton ]
-
-                _ ->
-                    []
-    in
-    makeDefaultRow buttons [ Spacing.p1 ]
+roundDoneButtonRow : Html Msg
+roundDoneButtonRow =
+    makeDefaultRow [ roundDoneButton ] [ Spacing.p1 ]
 
 
-pushupButton : Html Msg
-pushupButton =
-    makeSubmitButton (StartChallenge Model.Pushups) "Pushups"
-
-
-pullupButton : Html Msg
-pullupButton =
-    makeSubmitButton (StartChallenge Model.Pullups) "Pullups"
+startGameButton : Html Msg
+startGameButton =
+    makeSubmitButton StartChallenge "Let's go!"
 
 
 roundDoneButton : Html Msg
