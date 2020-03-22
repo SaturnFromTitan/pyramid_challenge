@@ -100,9 +100,14 @@ getRepsOfRound model finishedRounds =
         2 * maxReps - finishedRounds
 
 
-maxRest : Int
-maxRest =
-    60
+maxRest : Exercise -> Int
+maxRest exercise =
+    case exercise of
+        Pushups ->
+            50
+
+        Pullups ->
+            60
 
 
 getRestAfterRound : Model -> Int -> Int
@@ -116,7 +121,7 @@ getRestAfterRound model finishedRounds =
                 Pullups ->
                     getRestAfterRoundPullups model finishedRounds
     in
-    min maxRest restAmount
+    min (maxRest model.exercise) restAmount
 
 
 getRestAfterRoundPushups : Model -> Int -> Int
@@ -129,7 +134,7 @@ getRestAfterRoundPushups model finishedRounds =
         5
 
     else
-        (finishedReps - 1) * 10
+        (finishedReps - 2) * 10
 
 
 getRestAfterRoundPullups : Model -> Int -> Int
@@ -142,7 +147,7 @@ getRestAfterRoundPullups model finishedRounds =
         30
 
     else
-        maxRest
+        maxRest model.exercise
 
 
 getGameText : Model -> String
