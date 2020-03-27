@@ -47,7 +47,7 @@ getMaxRepsPerRound model =
             10
 
         Pullups ->
-            4
+            5
 
 
 getTotalRounds : Model -> Int
@@ -142,12 +142,18 @@ getRestAfterRoundPullups model finishedRounds =
     let
         finishedReps =
             getRepsOfRound model finishedRounds
+
+        maxReps =
+            getMaxRepsPerRound model
+
+        isSecondHalf =
+            finishedRounds > maxReps
     in
-    if finishedReps <= 2 then
-        30
+    if isSecondHalf then
+        (finishedReps - 1) * 15
 
     else
-        maxRest model.exercise
+        finishedReps * 15
 
 
 getGameText : Model -> String
