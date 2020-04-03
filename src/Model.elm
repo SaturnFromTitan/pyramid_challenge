@@ -113,47 +113,41 @@ maxRest exercise =
 getRestAfterRound : Model -> Int -> Int
 getRestAfterRound model finishedRounds =
     let
-        restAmount =
+        nextRound =
+            finishedRounds + 1
+
+        repsNextRound =
+            getRepsOfRound model nextRound
+
+        getRestFunc =
             case model.exercise of
                 Pushups ->
-                    getRestAfterRoundPushups model finishedRounds
+                    getRestPushups
 
                 Pullups ->
-                    getRestAfterRoundPullups model finishedRounds
+                    getRestPullups
+
+        restAmount =
+            getRestFunc model repsNextRound
+
+        maxRestAmount =
+            maxRest model.exercise
     in
-    min (maxRest model.exercise) restAmount
+    min maxRestAmount restAmount
 
 
-getRestAfterRoundPushups : Model -> Int -> Int
-getRestAfterRoundPushups model finishedRounds =
-    let
-        finishedReps =
-            getRepsOfRound model finishedRounds
-    in
-    if finishedReps <= 3 then
+getRestPushups : Model -> Int -> Int
+getRestPushups model repsNextRound =
+    if repsNextRound <= 4 then
         5
 
     else
-        (finishedReps - 2) * 10
+        (repsNextRound - 3) * 10
 
 
-getRestAfterRoundPullups : Model -> Int -> Int
-getRestAfterRoundPullups model finishedRounds =
-    let
-        finishedReps =
-            getRepsOfRound model finishedRounds
-
-        maxReps =
-            getMaxRepsPerRound model
-
-        isSecondHalf =
-            finishedRounds > maxReps
-    in
-    if isSecondHalf then
-        (finishedReps - 1) * 15
-
-    else
-        finishedReps * 15
+getRestPullups : Model -> Int -> Int
+getRestPullups model repsNextRound =
+    repsNextRound * 15
 
 
 getGameText : Model -> String
