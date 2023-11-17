@@ -1,14 +1,10 @@
 import invoke
 
 
-def _build(context):
-    context.run(f"elm make src/Main.elm --output=main.js")
-
-
 @invoke.task
 def build(context):
     """ Compiles the latest elm code to main.js which is used in index.html """
-    _build(context)
+    context.run(f"elm make src/Main.elm --output=public/main.js")
 
 
 @invoke.task
