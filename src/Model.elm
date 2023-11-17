@@ -142,7 +142,7 @@ getRestPushups model repsNextRound =
         3
 
     else
-        (repsNextRound - 3) * 10
+        (repsNextRound - 4) * 10
 
 
 getRestPullups : Model -> Int -> Int

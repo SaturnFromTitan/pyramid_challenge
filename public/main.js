@@ -5865,7 +5865,7 @@ var $author$project$Model$getRestPullups = F2(
 	});
 var $author$project$Model$getRestPushups = F2(
 	function (model, repsNextRound) {
-		return (repsNextRound <= 4) ? 3 : ((repsNextRound - 3) * 10);
+		return (repsNextRound <= 4) ? 3 : ((repsNextRound - 4) * 10);
 	});
 var $author$project$Model$maxRest = function (exercise) {
 	if (exercise.$ === 'Pushups') {
