@@ -5851,7 +5851,7 @@ var $author$project$Model$getMaxRepsPerRound = function (model) {
 	if (_v0.$ === 'Pushups') {
 		return 10;
 	} else {
-		return 5;
+		return 6;
 	}
 };
 var $author$project$Model$getRepsOfRound = F2(
@@ -5861,17 +5861,17 @@ var $author$project$Model$getRepsOfRound = F2(
 	});
 var $author$project$Model$getRestPullups = F2(
 	function (model, repsNextRound) {
-		return repsNextRound * 15;
+		return (repsNextRound - 1) * 15;
 	});
 var $author$project$Model$getRestPushups = F2(
 	function (model, repsNextRound) {
-		return (repsNextRound <= 4) ? 5 : ((repsNextRound - 3) * 10);
+		return (repsNextRound <= 4) ? 3 : ((repsNextRound - 3) * 10);
 	});
 var $author$project$Model$maxRest = function (exercise) {
 	if (exercise.$ === 'Pushups') {
 		return 50;
 	} else {
-		return 60;
+		return 90;
 	}
 };
 var $elm$core$Basics$min = F2(

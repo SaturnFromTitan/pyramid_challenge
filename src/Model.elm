@@ -47,7 +47,7 @@ getMaxRepsPerRound model =
             10
 
         Pullups ->
-            5
+            6
 
 
 getTotalRounds : Model -> Int
@@ -107,7 +107,7 @@ maxRest exercise =
             50
 
         Pullups ->
-            60
+            90
 
 
 getRestAfterRound : Model -> Int -> Int
@@ -139,7 +139,7 @@ getRestAfterRound model finishedRounds =
 getRestPushups : Model -> Int -> Int
 getRestPushups model repsNextRound =
     if repsNextRound <= 4 then
-        5
+        3
 
     else
         (repsNextRound - 3) * 10
@@ -147,7 +147,7 @@ getRestPushups model repsNextRound =
 
 getRestPullups : Model -> Int -> Int
 getRestPullups model repsNextRound =
-    repsNextRound * 15
+    (repsNextRound - 1) * 15
 
 
 getGameText : Model -> String
