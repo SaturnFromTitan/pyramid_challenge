@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "pyramid-challenge"
+version = "1.0.0"
+description = ""
+authors = ["Martin Winkel <martin@pythomation.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[tool.poetry.group.dev.dependencies]
+invoke = "^2.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
